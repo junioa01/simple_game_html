@@ -25,7 +25,8 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
-        const dino = {
+        // Game state
+        let dino = {
             x: 50,
             y: 150,
             width: 50,
@@ -36,7 +37,7 @@
             jumpStrength: 15
         };
 
-        const obstacle = {
+        let obstacle = {
             x: canvas.width,
             y: 150,
             width: 20,
@@ -46,6 +47,30 @@
         };
 
         let score = 0;
+        let gameOver = false;
+
+        function resetGame() {
+            dino = {
+                x: 50,
+                y: 150,
+                width: 50,
+                height: 50,
+                color: 'green',
+                dy: 0,
+                gravity: 0.5,
+                jumpStrength: 15
+            };
+            obstacle = {
+                x: canvas.width,
+                y: 150,
+                width: 20,
+                height: 50,
+                color: 'red',
+                dx: -2
+            };
+            score = 0;
+            gameOver = false;
+        }
 
         function drawDino() {
             ctx.fillStyle = dino.color;
@@ -64,6 +89,8 @@
         }
 
         function update() {
+            if (gameOver) return;
+
             dino.dy += dino.gravity;
             dino.y += dino.dy;
 
@@ -75,15 +102,16 @@
             obstacle.x += obstacle.dx;
             if (obstacle.x + obstacle.width < 0) {
                 obstacle.x = canvas.width;
-                score++; // Increment score when obstacle is passed
+                score++;
             }
 
             if (dino.x < obstacle.x + obstacle.width &&
                 dino.x + dino.width > obstacle.x &&
                 dino.y < obstacle.y + obstacle.height &&
                 dino.y + dino.height > obstacle.y) {
+                gameOver = true;
                 alert('Game Over! Your score: ' + score);
-                document.location.reload();
+                resetGame(); // Reset game state
             }
         }
 
@@ -101,7 +129,7 @@
         }
 
         document.addEventListener('keydown', (event) => {
-            if (event.code === 'Space') {
+            if (event.code === 'Space' && !gameOver) {
                 dino.dy = -dino.jumpStrength;
             }
         });
